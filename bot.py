@@ -1,6 +1,7 @@
 import os
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import Update, ForceReply
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from dotenv import load_dotenv
 
 
@@ -16,22 +17,26 @@ logger = logging.getLogger(__name__)
 
 
 # command handlers
-def start(update, context):
+def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued"""
-    update.message.reply_text('Hi!')
+    user = update.effective_user
+    update.message.reply_markdown_v2(
+        f'Hi! {user.mention_markdown_v2()}!',
+        reply_markup=ForceReply(selective=True)
+    )
 
 
-def help(update, context):
+def help(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
     update.message.reply_text('Help!')
 
 
-def echo(update, context):
+def echo(update: Update, context: CallbackContext) -> None:
     """Echo the user message."""
     update.message.reply_text(update.message.text)
 
 
-def error(update, context):
+def error(update: Update, context: CallbackContext) -> None:
     """Log errors caused by updates."""
     logger.warning(f'Update "{update}" caused error "{context.error}"')
 
@@ -42,7 +47,7 @@ def main():
     Creates the updater and passes it the bot's token.
     Makes sure to set use_context=True to use the new context based callbacks
     """
-    updater = Updater(TOKEN, use_context=True)
+    updater = Updater(TOKEN)
 
     # get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -52,14 +57,13 @@ def main():
     dp.add_handler(CommandHandler("help", help))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, echo))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
 
     # log all errors
     dp.add_error_handler(error)
 
     # Start the Bot
-    updater.start_webhook(listen="0.0.0.0", port=80, url_path=TOKEN)
-    updater.bot.setWebhook('https://bjjt-badass-bot.herokuapp.com/' + TOKEN)
+    updater.start_polling()
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT.
