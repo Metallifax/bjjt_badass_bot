@@ -58,8 +58,8 @@ def main():
     dp.add_error_handler(error)
 
     # Start the Bot
-    updater.start_webhook(listen="0.0.0.0", port=8080, url_path=TOKEN)
-    updater.bot.setWebhook('https://bjjt-badass-bot.herokuapp.com:8080/' + TOKEN)
+    updater.start_webhook(listen="0.0.0.0", port=80, url_path=TOKEN)
+    updater.bot.setWebhook('https://bjjt-badass-bot.herokuapp.com/' + TOKEN)
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT.
