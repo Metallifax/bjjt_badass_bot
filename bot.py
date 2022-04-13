@@ -18,4 +18,4 @@ def echo_all(message):
     bot.reply_to(message, message.text)
 
 
-bot.polling()
+bot.infinity_polling()
